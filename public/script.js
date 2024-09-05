@@ -39,6 +39,7 @@ function fetchData() {
             } else {
                 if (data.length > 0) {
                     const latestData = data[data.length - 1]; // Obtém o último dado
+                    console.log('Último dado recebido:', latestData); // Diagnóstico
 
                     if (isValidData(latestData)) { // Verifica se os dados são válidos
                         document.getElementById('timestamp').innerText = formatDate(latestData.timestamp);
@@ -48,6 +49,7 @@ function fetchData() {
                         document.getElementById('weather-info').style.display = 'block'; // Mostra os dados do tempo
                         lastDataReceivedTime = Date.now(); // Atualiza o tempo da última recepção de dados
                     } else {
+                        console.log('Dados recebidos inválidos:', latestData); // Diagnóstico
                         showOfflineMessage(); // Se dados inválidos, exibe mensagem de offline
                     }
                 } else {
@@ -64,7 +66,8 @@ function fetchData() {
 }
 
 function isValidData(data) {
-    return data.timestamp && data.temperature !== undefined && data.humidity !== undefined;
+    // Adicione validações de dados conforme necessário. Exemplo:
+    return data.timestamp && typeof data.temperature === 'number' && typeof data.humidity === 'number';
 }
 
 function showOfflineMessage() {

@@ -14,28 +14,26 @@ function formatDate(timestamp) {
 
 // Função para verificar se os dados são válidos
 function isValidData(data) {
-    // Valida se todos os campos esperados estão presentes e são números válidos
-    return data.timestamp && !isNaN(parseFloat(data.temperature)) && !isNaN(parseFloat(data.humidity));
+    // Verifica se todos os campos esperados estão presentes e são números válidos
+    return data.timestamp &&
+           !isNaN(parseFloat(data.temperature)) &&
+           !isNaN(parseFloat(data.pressure)) &&
+           !isNaN(parseFloat(data.altitude)) &&
+           isFinite(data.temperature) &&
+           isFinite(data.pressure) &&
+           isFinite(data.altitude);
 }
 
 // Função para atualizar a interface com os dados recebidos
 function updateUI(data) {
     if (isValidData(data)) {
         document.getElementById('timestamp').innerText = formatDate(data.timestamp);
-        document.getElementById('temperature').innerText = `Temperatura: ${data.temperature} °C`;
-        document.getElementById('humidity').innerText = `Umidade: ${data.humidity} %`;
-        document.getElementById('weather-info').style.display = 'block'; // Mostra os dados do tempo
-        document.getElementById('offline-message').style.display = 'none'; // Esconde a mensagem de offline
+        document.getElementById('temperature').innerText = `Temperatura: ${parseFloat(data.temperature).toFixed(2)} °C`;
+        document.getElementById('pressure').innerText = `Pressão: ${parseFloat(data.pressure).toFixed(2)} hPa`;
+        document.getElementById('altitude').innerText = `Altitude: ${parseFloat(data.altitude).toFixed(2)} m`;
     } else {
         console.error('Dados recebidos inválidos:', data);
-        showOfflineMessage(); // Mostra mensagem de offline se os dados forem inválidos
     }
-}
-
-// Função para exibir a mensagem de offline
-function showOfflineMessage() {
-    document.getElementById('weather-info').style.display = 'none'; // Esconde os dados do tempo
-    document.getElementById('offline-message').style.display = 'block'; // Mostra a mensagem de offline
 }
 
 // Função para buscar dados do servidor
@@ -52,13 +50,10 @@ function fetchData() {
             if (Array.isArray(data) && data.length > 0) {
                 const latestData = data[data.length - 1]; // Obtém o último dado
                 updateUI(latestData); // Atualiza a interface com o último dado
-            } else {
-                showOfflineMessage(); // Mostra mensagem de offline se não houver dados
             }
         })
         .catch(error => {
             console.error('Erro ao buscar dados:', error);
-            showOfflineMessage(); // Mostra mensagem de offline se houver erro na requisição
         });
 }
 

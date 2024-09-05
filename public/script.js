@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
     async function fetchData() {
       try {
-        const response = await fetch('https://complete-weather-station.vercel.app/api/data');
+        const response = await fetch('complete-weather-station.vercel.app/api/data');
         if (!response.ok) {
           throw new Error(`Erro ao buscar dados: ${response.status} ${response.statusText}`);
         }

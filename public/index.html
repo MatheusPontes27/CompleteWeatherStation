@@ -1,18 +1,24 @@
 
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estação Meteorológica</title>
-  <link rel="stylesheet" href="./style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estação Meteorológica</title>
+    <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
-  <div id="data-container">
-    <p>Carregando dados...</p>
-  </div>
-
-  <script src="./script.js"></script>
+    <div id="weather-info">
+        <h1>Dados Meteorológicos</h1>
+        <p id="timestamp">Aguardando dados...</p>
+        <p id="temperature">Temperatura: -- °C</p>
+        <p id="humidity">Umidade: -- %</p>
+    </div>
+    <div id="offline-message" style="display: none;">
+        <h2>Offline</h2>
+        <p>Não foi possível obter dados.</p>
+    </div>
+    <script src="/scripts/script.js"></script>
 </body>
 </html>

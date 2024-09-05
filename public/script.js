@@ -58,10 +58,11 @@ function fetchData() {
 }
 
 function isValidData(data) {
-    // Converte os valores para números e verifica se a conversão foi bem-sucedida
+    // Adiciona conversão dos valores para números e valida se são números válidos
     const temperature = parseFloat(data.temperature);
     const humidity = parseFloat(data.humidity);
 
+    // Verifica se o timestamp está presente e se a temperatura e a umidade são números válidos
     return data.timestamp && !isNaN(temperature) && !isNaN(humidity);
 }
 
@@ -76,7 +77,7 @@ function checkForOffline() {
 setInterval(fetchData, 5000);
 
 // Verificar o status de offline a cada 5 segundos (se necessário)
-setInterval(checkForOffline, 5000);
+setInterval(checkForOffline, 10000);
 
 // Fetch imediatamente para garantir que a página exiba dados se disponíveis
 fetchData();

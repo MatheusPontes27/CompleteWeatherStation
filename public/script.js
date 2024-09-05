@@ -1,10 +1,6 @@
 
 
-let lastDataReceivedTime = Date.now(); // Inicializa com o tempo atual
-const offlineThreshold = 15000; // Tempo máximo (em ms) sem dados antes de mostrar a mensagem de offline
-let lastDataCount = 0; // Número de dados recebidos na última atualização
-let repeatCount = 0; // Contador de repetições do mesmo número de dados
-
+// Função para formatar a data
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     const day = String(date.getDate()).padStart(2, '0');
@@ -12,9 +8,37 @@ function formatDate(timestamp) {
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `Data: ${day}/${month}/${year} , Hora: ${hours}:${minutes}`;
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `Data: ${day}/${month}/${year} - Hora: ${hours}:${minutes}:${seconds}`;
 }
 
+// Função para verificar se os dados são válidos
+function isValidData(data) {
+    // Valida se todos os campos esperados estão presentes e são números válidos
+    return data.timestamp && !isNaN(parseFloat(data.temperature)) && !isNaN(parseFloat(data.humidity));
+}
+
+// Função para atualizar a interface com os dados recebidos
+function updateUI(data) {
+    if (isValidData(data)) {
+        document.getElementById('timestamp').innerText = formatDate(data.timestamp);
+        document.getElementById('temperature').innerText = `Temperatura: ${data.temperature} °C`;
+        document.getElementById('humidity').innerText = `Umidade: ${data.humidity} %`;
+        document.getElementById('weather-info').style.display = 'block'; // Mostra os dados do tempo
+        document.getElementById('offline-message').style.display = 'none'; // Esconde a mensagem de offline
+    } else {
+        console.error('Dados recebidos inválidos:', data);
+        showOfflineMessage(); // Mostra mensagem de offline se os dados forem inválidos
+    }
+}
+
+// Função para exibir a mensagem de offline
+function showOfflineMessage() {
+    document.getElementById('weather-info').style.display = 'none'; // Esconde os dados do tempo
+    document.getElementById('offline-message').style.display = 'block'; // Mostra a mensagem de offline
+}
+
+// Função para buscar dados do servidor
 function fetchData() {
     fetch('/api/data')
         .then(response => {
@@ -25,59 +49,21 @@ function fetchData() {
         })
         .then(data => {
             console.log('Dados recebidos:', data); // Diagnóstico
-
-            const currentDataCount = data.length; // Obtém o número de dados recebidos
-
-            if (currentDataCount === lastDataCount) {
-                repeatCount++; // Incrementa o contador de repetições
+            if (Array.isArray(data) && data.length > 0) {
+                const latestData = data[data.length - 1]; // Obtém o último dado
+                updateUI(latestData); // Atualiza a interface com o último dado
             } else {
-                repeatCount = 0; // Reinicia o contador se o número de dados mudar
+                showOfflineMessage(); // Mostra mensagem de offline se não houver dados
             }
-
-            if (repeatCount < 3) { // Só atualiza se o contador for menor que 3
-                if (data.length > 0) {
-                    const latestData = data[data.length - 1]; // Obtém o último dado
-                    console.log('Último dado recebido:', latestData); // Diagnóstico
-
-                    if (isValidData(latestData)) { // Verifica se os dados são válidos
-                        document.getElementById('timestamp').innerText = formatDate(latestData.timestamp);
-                        document.getElementById('temperature').innerText = `Temperatura: ${latestData.temperature} °C`;
-                        document.getElementById('humidity').innerText = `Umidade: ${latestData.humidity} %`;
-                        document.getElementById('weather-info').style.display = 'block'; // Mostra os dados do tempo
-                    } else {
-                        console.log('Dados recebidos inválidos:', latestData); // Diagnóstico
-                    }
-                }
-            }
-            
-            lastDataCount = currentDataCount; // Atualiza o último número de dados recebido
         })
         .catch(error => {
-            console.error('Erro na operação fetch:', error);
+            console.error('Erro ao buscar dados:', error);
+            showOfflineMessage(); // Mostra mensagem de offline se houver erro na requisição
         });
 }
 
-function isValidData(data) {
-    // Adiciona conversão dos valores para números e valida se são números válidos
-    const temperature = parseFloat(data.temperature);
-    const humidity = parseFloat(data.humidity);
-
-    // Verifica se o timestamp está presente e se a temperatura e a umidade são números válidos
-    return data.timestamp && !isNaN(temperature) && !isNaN(humidity);
-}
-
-function checkForOffline() {
-    const currentTime = Date.now();
-    if (currentTime - lastDataReceivedTime > offlineThreshold) {
-        // Não exibe mensagem de offline
-    }
-}
-
-// Atualizar dados a cada 5 segundos
+// Atualiza os dados a cada 5 segundos
 setInterval(fetchData, 5000);
 
-// Verificar o status de offline a cada 5 segundos (se necessário)
-setInterval(checkForOffline, 10000);
-
-// Fetch imediatamente para garantir que a página exiba dados se disponíveis
+// Busca dados imediatamente para garantir que a página exiba dados se disponíveis
 fetchData();
